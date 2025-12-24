@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Happy Holidays!</title>
+
   <style>
     @import url('https://fonts.cdnfonts.com/css/futura-md-bt');
 
@@ -320,11 +321,104 @@
       from { left: -350px; top: 50%; }
       to { left: 110vw; top: -15%; }
     }
+
+    /* -------------------------------------------------
+       Mobile polish (does NOT affect desktop look)
+       ------------------------------------------------- */
+
+    /* iPhone notch / safe-area support */
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: calc(14px + var(--safe-top)) calc(14px + var(--safe-right))
+                 calc(14px + var(--safe-bottom)) calc(14px + var(--safe-left));
+      }
+
+      .message {
+        max-width: 92vw;
+        padding: 0 0.75rem;
+      }
+
+      .message h1 {
+        font-size: clamp(1.9rem, 5.5vw, 2.4rem);
+        margin-bottom: 1rem;
+      }
+
+      .message p {
+        font-size: clamp(1.02rem, 3.6vw, 1.15rem);
+        line-height: 1.5;
+      }
+
+      .message .subtext {
+        font-size: clamp(0.9rem, 3.2vw, 1.0rem);
+        margin-top: 0.9rem;
+      }
+
+      .bitcoin-moon {
+        top: calc(10px + var(--safe-top));
+        right: calc(10px + var(--safe-right));
+        width: 92px;
+        height: 92px;
+      }
+      .bitcoin-moon .btc-symbol { font-size: 2.0rem; }
+      .bitcoin-moon .btc-price { font-size: 0.72rem; }
+
+      .music-toggle {
+        top: calc(12px + var(--safe-top));
+        left: calc(12px + var(--safe-left));
+        width: 48px;
+        height: 48px;
+      }
+
+      .audio-hint {
+        top: calc(72px + var(--safe-top));
+        left: calc(12px + var(--safe-left));
+      }
+
+      .bottom-section {
+        bottom: calc(16px + var(--safe-bottom));
+      }
+      .diageo-logo {
+        font-size: 1.75rem;
+        letter-spacing: 4px;
+      }
+      .signoff { font-size: 1rem; }
+
+      .santa { font-size: 1.85rem; }
+
+      .modal {
+        width: min(92vw, 520px);
+        padding: 1.25rem;
+        border-radius: 14px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .modal h2 { font-size: 1.55rem; }
+      .modal ul li, .modal ol li { font-size: 0.95rem; }
+
+      .snowflake { opacity: 0.65; }
+    }
+
+    @media (max-width: 380px) {
+      .bitcoin-moon { width: 82px; height: 82px; }
+      .diageo-logo { font-size: 1.6rem; letter-spacing: 3px; }
+      .message h1 { font-size: 1.85rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .star, .snowflake, .santa-container, .bitcoin-moon, .message {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <!-- Music Toggle -->
   <button class="music-toggle" id="musicToggle" onclick="toggleMusic()" title="Tap for Jingle Bells!" aria-label="Toggle music">🔇</button>
   <div class="audio-hint" id="audioHint">If sound is blocked, tap anywhere once, then tap the speaker again 🎶</div>
 
@@ -354,10 +448,8 @@
     <div class="modal" onclick="event.stopPropagation()">
       <span class="modal-close" onclick="closeEspressoModal()" aria-label="Close">&times;</span>
 
-      <!-- Chocolate martini glass (replaces emoji header) -->
       <div class="martini-wrap" aria-hidden="true">
         <svg class="martini-svg" viewBox="0 0 200 220">
-          <!-- Glass outline -->
           <path class="glass"
             d="M30 30 L100 105 L170 30
                M100 105 L100 175
@@ -381,14 +473,12 @@
             </linearGradient>
           </defs>
 
-          <!-- Liquid + foam + highlight -->
           <g clip-path="url(#bowlClip)">
             <path class="liquid" d="M45 45 L100 96 L155 45 Z" fill="url(#choco)"/>
             <path class="foam" d="M46 46 C70 54, 85 50, 100 60 C115 70, 135 58, 154 48 L154 45 L46 45 Z"/>
             <path class="highlight" d="M58 44 L92 78" fill="none" stroke="url(#shine)" stroke-width="8" stroke-linecap="round" opacity="0.55"/>
           </g>
 
-          <!-- Cocoa dust -->
           <circle class="dust" cx="95" cy="58" r="2"/>
           <circle class="dust" cx="110" cy="65" r="1.8"/>
           <circle class="dust" cx="85" cy="70" r="1.6"/>
@@ -475,7 +565,6 @@
       C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99
     };
 
-    // Standard chorus feel
     const jingleBells = [
       { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
       { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
@@ -533,7 +622,6 @@
         o.stop(t + durSec);
       });
 
-      // Tiny transient "click"
       const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.02), ctx.sampleRate);
       const data = noiseBuf.getChannelData(0);
       for (let i = 0; i < data.length; i++) {
@@ -579,7 +667,7 @@
     async function startMusic() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state !== 'running') {
-        await audioCtx.resume(); // key for iOS/Safari
+        await audioCtx.resume();
       }
 
       sequenceIndex = 0;
@@ -592,10 +680,8 @@
     function stopMusic() {
       if (schedulerTimer) clearTimeout(schedulerTimer);
       schedulerTimer = null;
-      // Keep AudioContext alive for instant restart; avoid iOS issues with closing.
     }
 
-    // IMPORTANT: async so we can await startMusic()
     async function toggleMusic() {
       if (isPlaying) {
         isPlaying = false;
@@ -608,14 +694,12 @@
         musicBtn.classList.add('playing');
         try {
           await startMusic();
-          // Hide hint if it was showing
           audioHint.classList.remove('show');
         } catch (e) {
           isPlaying = false;
           stopMusic();
           musicBtn.textContent = '🔇';
           musicBtn.classList.remove('playing');
-          // Show hint briefly
           audioHint.classList.add('show');
           setTimeout(() => audioHint.classList.remove('show'), 4500);
           console.warn('Audio start blocked:', e);
@@ -623,7 +707,6 @@
       }
     }
 
-    // One-time "unlock" attempt on first pointer gesture (helps iOS)
     document.addEventListener('pointerdown', async () => {
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -667,7 +750,6 @@
     function openEspressoRecipe() {
       document.getElementById('espressoModal').classList.add('active');
     }
-
     function closeEspressoModal(event) {
       if (!event || event.target === document.getElementById('espressoModal')) {
         document.getElementById('espressoModal').classList.remove('active');
@@ -677,7 +759,6 @@
     function openBreadRecipe() {
       document.getElementById('breadModal').classList.add('active');
     }
-
     function closeBreadModal(event) {
       if (!event || event.target === document.getElementById('breadModal')) {
         document.getElementById('breadModal').classList.remove('active');
