@@ -66,6 +66,7 @@
       justify-content: center;
       transition: all 0.3s ease;
       backdrop-filter: blur(5px);
+      -webkit-tap-highlight-color: transparent;
     }
     .music-toggle:hover {
       background: rgba(255,255,255,0.25);
@@ -82,7 +83,63 @@
       50% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
     }
 
-    /* Optional one-time audio unlock hint */
+    /* One-time audio unlock overlay (mobile/iOS reliability) */
+    .audio-unlock {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      backdrop-filter: blur(6px);
+    }
+    .audio-unlock.show { display: flex; }
+    .audio-unlock-card {
+      width: min(560px, 92vw);
+      background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 18px;
+      padding: 18px 18px;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+    }
+    .audio-unlock-card h2 {
+      font-size: 1.35rem;
+      margin-bottom: 8px;
+    }
+    .audio-unlock-card p {
+      font-size: 1rem;
+      opacity: 0.9;
+      line-height: 1.4;
+      margin-bottom: 14px;
+    }
+    .audio-unlock-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(212,175,55,0.55);
+      background: rgba(212,175,55,0.20);
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .audio-unlock-btn:active { transform: scale(0.98); }
+    .audio-unlock-note {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      opacity: 0.75;
+      font-style: italic;
+    }
+
+    /* Optional hint bubble */
     .audio-hint {
       position: fixed;
       top: 80px;
@@ -99,13 +156,10 @@
       transform: translateY(-6px);
       transition: opacity 0.25s ease, transform 0.25s ease;
       pointer-events: none;
-      max-width: 240px;
+      max-width: 260px;
       line-height: 1.3;
     }
-    .audio-hint.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .audio-hint.show { opacity: 1; transform: translateY(0); }
 
     .bitcoin-moon {
       position: fixed;
@@ -173,10 +227,10 @@
       animation: fall linear infinite;
       opacity: 0.8;
       z-index: 25;
-      pointer-events: none; /* important so flakes don't block clicks */
+      pointer-events: none;
     }
 
-    /* Bottom section with Diageo logo and signoff */
+    /* Bottom section */
     .bottom-section {
       position: fixed;
       bottom: 30px;
@@ -196,6 +250,7 @@
       color: #C80651;
       letter-spacing: 6px;
       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      -webkit-tap-highlight-color: transparent;
     }
     .diageo-logo:hover { transform: scale(1.05); }
     .signoff {
@@ -206,10 +261,10 @@
       opacity: 0.9;
       text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
-    .signoff-initials { cursor: pointer; transition: color 0.2s ease; }
+    .signoff-initials { cursor: pointer; transition: color 0.2s ease; -webkit-tap-highlight-color: transparent; }
     .signoff-initials:hover { color: #d4af37; }
 
-    /* Recipe Modal */
+    /* Modals */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -219,6 +274,7 @@
       align-items: center;
       justify-content: center;
       animation: fadeIn 0.3s ease;
+      padding: 18px;
     }
     .modal-overlay.active { display: flex; }
     .modal {
@@ -233,6 +289,7 @@
       color: #fff;
       position: relative;
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      -webkit-overflow-scrolling: touch;
     }
     .modal-close {
       position: absolute;
@@ -242,6 +299,7 @@
       cursor: pointer;
       opacity: 0.7;
       transition: opacity 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
     .modal-close:hover { opacity: 1; }
     .modal h2 {
@@ -298,16 +356,9 @@
       height: auto;
       filter: drop-shadow(0 12px 28px rgba(0,0,0,0.45));
     }
-    .martini-svg .glass{
-      stroke: rgba(255,255,255,0.9);
-    }
-    .martini-svg .foam{
-      fill: rgba(255,255,255,0.18);
-    }
-    .martini-svg .dust{
-      fill: rgba(255,255,255,0.55);
-      opacity: 0.45;
-    }
+    .martini-svg .glass{ stroke: rgba(255,255,255,0.9); }
+    .martini-svg .foam{ fill: rgba(255,255,255,0.18); }
+    .martini-svg .dust{ fill: rgba(255,255,255,0.55); opacity: 0.45; }
 
     @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -317,16 +368,9 @@
     }
     @keyframes rise { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-    @keyframes fly {
-      from { left: -350px; top: 50%; }
-      to { left: 110vw; top: -15%; }
-    }
+    @keyframes fly { from { left: -350px; top: 50%; } to { left: 110vw; top: -15%; } }
 
-    /* -------------------------------------------------
-       Mobile polish (does NOT affect desktop look)
-       ------------------------------------------------- */
-
-    /* iPhone notch / safe-area support */
+    /* Mobile polish (does NOT affect desktop look) */
     :root {
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-right: env(safe-area-inset-right, 0px);
@@ -340,31 +384,15 @@
                  calc(14px + var(--safe-bottom)) calc(14px + var(--safe-left));
       }
 
-      .message {
-        max-width: 92vw;
-        padding: 0 0.75rem;
-      }
-
-      .message h1 {
-        font-size: clamp(1.9rem, 5.5vw, 2.4rem);
-        margin-bottom: 1rem;
-      }
-
-      .message p {
-        font-size: clamp(1.02rem, 3.6vw, 1.15rem);
-        line-height: 1.5;
-      }
-
-      .message .subtext {
-        font-size: clamp(0.9rem, 3.2vw, 1.0rem);
-        margin-top: 0.9rem;
-      }
+      .message { max-width: 92vw; padding: 0 0.75rem; }
+      .message h1 { font-size: clamp(1.9rem, 5.5vw, 2.4rem); margin-bottom: 1rem; }
+      .message p { font-size: clamp(1.02rem, 3.6vw, 1.15rem); line-height: 1.5; }
+      .message .subtext { font-size: clamp(0.9rem, 3.2vw, 1.0rem); margin-top: 0.9rem; }
 
       .bitcoin-moon {
         top: calc(10px + var(--safe-top));
         right: calc(10px + var(--safe-right));
-        width: 92px;
-        height: 92px;
+        width: 92px; height: 92px;
       }
       .bitcoin-moon .btc-symbol { font-size: 2.0rem; }
       .bitcoin-moon .btc-price { font-size: 0.72rem; }
@@ -372,32 +400,19 @@
       .music-toggle {
         top: calc(12px + var(--safe-top));
         left: calc(12px + var(--safe-left));
-        width: 48px;
-        height: 48px;
+        width: 48px; height: 48px;
       }
-
       .audio-hint {
         top: calc(72px + var(--safe-top));
         left: calc(12px + var(--safe-left));
       }
 
-      .bottom-section {
-        bottom: calc(16px + var(--safe-bottom));
-      }
-      .diageo-logo {
-        font-size: 1.75rem;
-        letter-spacing: 4px;
-      }
+      .bottom-section { bottom: calc(16px + var(--safe-bottom)); }
+      .diageo-logo { font-size: 1.75rem; letter-spacing: 4px; }
       .signoff { font-size: 1rem; }
-
       .santa { font-size: 1.85rem; }
 
-      .modal {
-        width: min(92vw, 520px);
-        padding: 1.25rem;
-        border-radius: 14px;
-        -webkit-overflow-scrolling: touch;
-      }
+      .modal { width: min(92vw, 520px); padding: 1.25rem; border-radius: 14px; }
       .modal h2 { font-size: 1.55rem; }
       .modal ul li, .modal ol li { font-size: 0.95rem; }
 
@@ -419,8 +434,18 @@
 </head>
 
 <body>
+  <!-- One-time audio unlock overlay -->
+  <div class="audio-unlock" id="audioUnlock">
+    <div class="audio-unlock-card">
+      <h2>Turn sound on 🎶</h2>
+      <p>Tap once to enable the music, then use the speaker button anytime.</p>
+      <button class="audio-unlock-btn" id="audioUnlockBtn" type="button">Enable Sound</button>
+      <div class="audio-unlock-note">iPhone tip: if it’s still silent, flip your Silent switch off.</div>
+    </div>
+  </div>
+
   <button class="music-toggle" id="musicToggle" onclick="toggleMusic()" title="Tap for Jingle Bells!" aria-label="Toggle music">🔇</button>
-  <div class="audio-hint" id="audioHint">If sound is blocked, tap anywhere once, then tap the speaker again 🎶</div>
+  <div class="audio-hint" id="audioHint">If sound is blocked, tap Enable Sound, then tap the speaker 🎶</div>
 
   <a href="https://coinmarketcap.com/charts/fear-and-greed-index/" target="_blank" class="bitcoin-moon" rel="noopener">
     <span class="btc-symbol">₿</span>
@@ -549,16 +574,19 @@
 
   <script>
     /***********************
-     * Audio: Jingle Bells
-     * - iOS/Safari-safe: keep one AudioContext + always resume inside click
-     * - Precise timing scheduler + bell/toy-piano timbre
+     * Audio: Cross-device reliable Jingle Bells
      ***********************/
     let audioCtx = null;
     let isPlaying = false;
     let schedulerTimer = null;
 
+    let masterGain = null;
+    let compressor = null;
+
     const musicBtn = document.getElementById('musicToggle');
     const audioHint = document.getElementById('audioHint');
+    const audioUnlock = document.getElementById('audioUnlock');
+    const audioUnlockBtn = document.getElementById('audioUnlockBtn');
 
     const notes = {
       C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
@@ -569,51 +597,80 @@
       { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
       { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
       { n:'E4', b:1 }, { n:'G4', b:1 }, { n:'C4', b:1.5 }, { n:'D4', b:0.5 }, { n:'E4', b:4 },
-
       { n:'F4', b:1 }, { n:'F4', b:1 }, { n:'F4', b:1.5 }, { n:'F4', b:0.5 },
       { n:'F4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:0.5 }, { n:'E4', b:0.5 },
       { n:'E4', b:1 }, { n:'D4', b:1 }, { n:'D4', b:1 }, { n:'E4', b:1 }, { n:'D4', b:2 }, { n:'G4', b:2 },
-
       { n:null, b:2 }
     ];
 
     const BPM = 112;
     const secondsPerBeat = 60 / BPM;
     const lookaheadMs = 25;
-    const scheduleAheadSeconds = 0.15;
+    const scheduleAheadSeconds = 0.18;
 
     let sequenceIndex = 0;
     let nextNoteTime = 0;
 
-    function createBell(ctx, freq, t, durSec, velocity=0.55) {
-      const lowpass = ctx.createBiquadFilter();
+    function ensureAudioGraph() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      if (!compressor) {
+        compressor = audioCtx.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-24, audioCtx.currentTime);
+        compressor.knee.setValueAtTime(30, audioCtx.currentTime);
+        compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+        compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
+        compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+      }
+
+      if (!masterGain) {
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.95, audioCtx.currentTime);
+      }
+
+      if (!masterGain._connected) {
+        masterGain.connect(compressor);
+        compressor.connect(audioCtx.destination);
+        masterGain._connected = true;
+      }
+    }
+
+    async function resumeAudio() {
+      ensureAudioGraph();
+      if (audioCtx.state !== 'running') {
+        await audioCtx.resume();
+      }
+    }
+
+    function createBell(freq, t, durSec, velocity=0.7) {
+      const lowpass = audioCtx.createBiquadFilter();
       lowpass.type = 'lowpass';
       lowpass.frequency.setValueAtTime(12000, t);
-      lowpass.frequency.linearRampToValueAtTime(8000, t + durSec);
+      lowpass.frequency.linearRampToValueAtTime(8500, t + durSec);
 
-      const env = ctx.createGain();
+      const env = audioCtx.createGain();
       env.gain.setValueAtTime(0.0001, t);
       env.gain.exponentialRampToValueAtTime(velocity, t + 0.006);
-      env.gain.exponentialRampToValueAtTime(0.25 * velocity, t + Math.min(durSec * 0.35, 0.18));
+      env.gain.exponentialRampToValueAtTime(0.25 * velocity, t + Math.min(durSec * 0.35, 0.20));
       env.gain.exponentialRampToValueAtTime(0.0001, t + durSec);
 
       const partials = [
         { m: 1.00, g: 1.00, type:'sine' },
-        { m: 2.00, g: 0.22, type:'sine' },
-        { m: 3.00, g: 0.10, type:'triangle' },
-        { m: 4.20, g: 0.06, type:'sine' },
-        { m: 5.40, g: 0.04, type:'sine' }
+        { m: 2.00, g: 0.28, type:'sine' },
+        { m: 3.00, g: 0.14, type:'triangle' },
+        { m: 4.20, g: 0.08, type:'sine' },
+        { m: 5.40, g: 0.05, type:'sine' }
       ];
 
-      const sum = ctx.createGain();
-      sum.gain.value = 0.7;
+      const sum = audioCtx.createGain();
+      sum.gain.value = 0.85;
 
       partials.forEach(p => {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
         o.type = p.type;
         o.frequency.setValueAtTime(freq * p.m, t);
-        o.detune.setValueAtTime((Math.random() * 8) - 4, t);
+        o.detune.setValueAtTime((Math.random() * 10) - 5, t);
 
         g.gain.setValueAtTime(p.g, t);
         o.connect(g).connect(sum);
@@ -622,22 +679,21 @@
         o.stop(t + durSec);
       });
 
-      const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.02), ctx.sampleRate);
+      const noiseBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.02), audioCtx.sampleRate);
       const data = noiseBuf.getChannelData(0);
       for (let i = 0; i < data.length; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.002));
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.002));
       }
-
-      const noise = ctx.createBufferSource();
+      const noise = audioCtx.createBufferSource();
       noise.buffer = noiseBuf;
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.12 * velocity, t);
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.16 * velocity, t);
       noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
       noise.connect(noiseGain).connect(sum);
       noise.start(t);
       noise.stop(t + 0.03);
 
-      sum.connect(env).connect(lowpass).connect(ctx.destination);
+      sum.connect(env).connect(lowpass).connect(masterGain);
     }
 
     function scheduleNote(noteName, time, beatLength) {
@@ -645,8 +701,8 @@
       const freq = notes[noteName];
       if (!freq) return;
 
-      const durSec = Math.max(0.12, Math.min(0.55, beatLength * secondsPerBeat * 0.9));
-      createBell(audioCtx, freq, time, durSec, 0.58);
+      const durSec = Math.max(0.14, Math.min(0.60, beatLength * secondsPerBeat * 0.9));
+      createBell(freq, time, durSec, 0.75);
     }
 
     function nextEvent() {
@@ -665,13 +721,9 @@
     }
 
     async function startMusic() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state !== 'running') {
-        await audioCtx.resume();
-      }
-
+      await resumeAudio();
       sequenceIndex = 0;
-      nextNoteTime = audioCtx.currentTime + 0.08;
+      nextNoteTime = audioCtx.currentTime + 0.10;
 
       if (schedulerTimer) clearTimeout(schedulerTimer);
       scheduler();
@@ -682,7 +734,42 @@
       schedulerTimer = null;
     }
 
+    // Unlock gating
+    let audioUnlockedOnce = false;
+
+    async function unlockAudioFromGesture() {
+      try {
+        await resumeAudio();
+        audioUnlockedOnce = true;
+        audioUnlock.classList.remove('show');
+        audioHint.classList.remove('show');
+        return true;
+      } catch (e) {
+        console.warn('Unlock failed:', e);
+        audioHint.classList.add('show');
+        setTimeout(() => audioHint.classList.remove('show'), 6500);
+        return false;
+      }
+    }
+
+    audioUnlockBtn.addEventListener('click', async () => {
+      const ok = await unlockAudioFromGesture();
+      if (ok) {
+        isPlaying = true;
+        musicBtn.textContent = '🔊';
+        musicBtn.classList.add('playing');
+        await startMusic();
+      }
+    });
+
     async function toggleMusic() {
+      if (!audioUnlockedOnce) {
+        audioUnlock.classList.add('show');
+        audioHint.classList.add('show');
+        setTimeout(() => audioHint.classList.remove('show'), 5000);
+        return;
+      }
+
       if (isPlaying) {
         isPlaying = false;
         stopMusic();
@@ -694,25 +781,31 @@
         musicBtn.classList.add('playing');
         try {
           await startMusic();
-          audioHint.classList.remove('show');
         } catch (e) {
           isPlaying = false;
           stopMusic();
           musicBtn.textContent = '🔇';
           musicBtn.classList.remove('playing');
           audioHint.classList.add('show');
-          setTimeout(() => audioHint.classList.remove('show'), 4500);
+          setTimeout(() => audioHint.classList.remove('show'), 5500);
           console.warn('Audio start blocked:', e);
         }
       }
     }
 
-    document.addEventListener('pointerdown', async () => {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state !== 'running') await audioCtx.resume();
-      } catch (e) {}
-    }, { once: true });
+    // Also attempt unlock on first real tap/click anywhere (helps PC)
+    const tryUnlockOnce = async () => {
+      if (audioUnlockedOnce) return;
+      await unlockAudioFromGesture();
+    };
+    document.addEventListener('click', tryUnlockOnce, { once: true });
+    document.addEventListener('touchend', tryUnlockOnce, { once: true });
+
+    // Show overlay immediately on mobile devices (best iOS experience)
+    const isLikelyMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isLikelyMobile) {
+      audioUnlock.classList.add('show');
+    }
 
     /***********************
      * Stars + Snow
@@ -747,48 +840,30 @@
     /***********************
      * Modals
      ***********************/
-    function openEspressoRecipe() {
-      document.getElementById('espressoModal').classList.add('active');
-    }
+    function openEspressoRecipe() { document.getElementById('espressoModal').classList.add('active'); }
     function closeEspressoModal(event) {
       if (!event || event.target === document.getElementById('espressoModal')) {
         document.getElementById('espressoModal').classList.remove('active');
       }
     }
-
-    function openBreadRecipe() {
-      document.getElementById('breadModal').classList.add('active');
-    }
+    function openBreadRecipe() { document.getElementById('breadModal').classList.add('active'); }
     function closeBreadModal(event) {
       if (!event || event.target === document.getElementById('breadModal')) {
         document.getElementById('breadModal').classList.remove('active');
       }
     }
-
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeEspressoModal();
-        closeBreadModal();
-      }
+      if (e.key === 'Escape') { closeEspressoModal(); closeBreadModal(); }
     });
 
     /***********************
-     * Live BTC Price (multi-API fallback)
+     * Live BTC Price
      ***********************/
     async function fetchPrice() {
       const apis = [
-        {
-          url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
-          parse: (data) => data.bitcoin.usd
-        },
-        {
-          url: 'https://api.coinbase.com/v2/prices/BTC-USD/spot',
-          parse: (data) => parseFloat(data.data.amount)
-        },
-        {
-          url: 'https://api.coindesk.com/v1/bpi/currentprice.json',
-          parse: (data) => parseFloat(data.bpi.USD.rate.replace(',', ''))
-        }
+        { url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', parse: (d) => d.bitcoin.usd },
+        { url: 'https://api.coinbase.com/v2/prices/BTC-USD/spot', parse: (d) => parseFloat(d.data.amount) },
+        { url: 'https://api.coindesk.com/v1/bpi/currentprice.json', parse: (d) => parseFloat(d.bpi.USD.rate.replace(',', '')) }
       ];
 
       for (const api of apis) {
@@ -801,7 +876,7 @@
               '$' + price.toLocaleString('en-US', { maximumFractionDigits: 0 });
             return;
           }
-        } catch (e) { /* try next */ }
+        } catch (e) {}
       }
     }
     fetchPrice();
