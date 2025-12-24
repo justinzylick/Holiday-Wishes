@@ -202,7 +202,11 @@
       z-index: 20;
       white-space: nowrap;
       transform: rotate(-15deg);
-      pointer-events: none;
+      
+      /* CHANGED LINES BELOW: */
+      pointer-events: auto;     /* Allows clicking */
+      cursor: pointer;          /* Shows hand icon */
+      text-decoration: none;    /* Removes underline */
     }
     .santa {
       font-size: 2.2rem;
@@ -450,9 +454,9 @@
     <span class="btc-price" id="price">$93,500</span>
   </a>
 
-  <div class="santa-container" aria-hidden="true">
+<a href="https://www.noradsanta.org/en/map" target="_blank" class="santa-container" aria-label="Track Santa Live">
     <span class="santa">🎅🛷<span class="reindeer">🦌🦌🦌🦌🦌🦌🦌🦌</span></span>
-  </div>
+  </a>
 
   <div class="message">
     <h1>✨ Happy Holidays! ✨</h1>
@@ -895,3 +899,4 @@
   </script>
 </body>
 </html>
+
