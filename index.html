@@ -1,6 +1,9 @@
+<!-- Brought to you by JZ -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Happy Holidays!</title>
   <style>
     @import url('https://fonts.cdnfonts.com/css/futura-md-bt');
@@ -15,6 +18,7 @@
       font-family: Georgia, serif;
       overflow: hidden;
     }
+
     .message {
       text-align: center;
       color: #fff;
@@ -55,7 +59,7 @@
       color: #fff;
       font-size: 1.5rem;
       cursor: pointer;
-      z-index: 100;
+      z-index: 110;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -71,9 +75,35 @@
       border-color: rgba(212, 175, 55, 0.6);
       animation: pulse 1s ease-in-out infinite;
     }
+
     @keyframes pulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
       50% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+    }
+
+    /* Optional one-time audio unlock hint */
+    .audio-hint {
+      position: fixed;
+      top: 80px;
+      left: 20px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.92);
+      font-size: 0.9rem;
+      z-index: 105;
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+      max-width: 240px;
+      line-height: 1.3;
+    }
+    .audio-hint.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .bitcoin-moon {
@@ -118,6 +148,7 @@
       z-index: 20;
       white-space: nowrap;
       transform: rotate(-15deg);
+      pointer-events: none;
     }
     .santa {
       font-size: 2.2rem;
@@ -131,6 +162,7 @@
       background: #fff;
       border-radius: 50%;
       animation: twinkle ease-in-out infinite;
+      pointer-events: none;
     }
     .snowflake {
       position: fixed;
@@ -140,7 +172,7 @@
       animation: fall linear infinite;
       opacity: 0.8;
       z-index: 25;
-      pointer-events: none;
+      pointer-events: none; /* important so flakes don't block clicks */
     }
 
     /* Bottom section with Diageo logo and signoff */
@@ -217,11 +249,6 @@
       color: #d4af37;
       text-align: center;
     }
-    .modal .drink-emoji {
-      text-align: center;
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
     .modal h3 {
       font-size: 1.1rem;
       margin-top: 1.2rem;
@@ -259,6 +286,28 @@
       opacity: 0.85;
     }
 
+    /* Chocolate martini (SVG) */
+    .martini-wrap{
+      display:flex;
+      justify-content:center;
+      margin-bottom: 1rem;
+    }
+    .martini-svg{
+      width: 110px;
+      height: auto;
+      filter: drop-shadow(0 12px 28px rgba(0,0,0,0.45));
+    }
+    .martini-svg .glass{
+      stroke: rgba(255,255,255,0.9);
+    }
+    .martini-svg .foam{
+      fill: rgba(255,255,255,0.18);
+    }
+    .martini-svg .dust{
+      fill: rgba(255,255,255,0.55);
+      opacity: 0.45;
+    }
+
     @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes glow {
@@ -276,14 +325,15 @@
 
 <body>
   <!-- Music Toggle -->
-  <button class="music-toggle" id="musicToggle" onclick="toggleMusic()" title="🎵 Click for Jingle Bells!">🔇</button>
+  <button class="music-toggle" id="musicToggle" onclick="toggleMusic()" title="Tap for Jingle Bells!" aria-label="Toggle music">🔇</button>
+  <div class="audio-hint" id="audioHint">If sound is blocked, tap anywhere once, then tap the speaker again 🎶</div>
 
-  <a href="https://coinmarketcap.com/charts/fear-and-greed-index/" target="_blank" class="bitcoin-moon">
+  <a href="https://coinmarketcap.com/charts/fear-and-greed-index/" target="_blank" class="bitcoin-moon" rel="noopener">
     <span class="btc-symbol">₿</span>
     <span class="btc-price" id="price">$93,500</span>
   </a>
 
-  <div class="santa-container">
+  <div class="santa-container" aria-hidden="true">
     <span class="santa">🎅🛷<span class="reindeer">🦌🦌🦌🦌🦌🦌🦌🦌</span></span>
   </div>
 
@@ -300,10 +350,51 @@
   </div>
 
   <!-- Espresso Martini Modal -->
-  <div class="modal-overlay" id="espressoModal" onclick="closeEspressoModal(event)">
+  <div class="modal-overlay" id="espressoModal" onclick="closeEspressoModal(event)" role="dialog" aria-modal="true" aria-label="Espresso martini recipe">
     <div class="modal" onclick="event.stopPropagation()">
-      <span class="modal-close" onclick="closeEspressoModal()">&times;</span>
-      <div class="drink-emoji">🎅🍸☕</div>
+      <span class="modal-close" onclick="closeEspressoModal()" aria-label="Close">&times;</span>
+
+      <!-- Chocolate martini glass (replaces emoji header) -->
+      <div class="martini-wrap" aria-hidden="true">
+        <svg class="martini-svg" viewBox="0 0 200 220">
+          <!-- Glass outline -->
+          <path class="glass"
+            d="M30 30 L100 105 L170 30
+               M100 105 L100 175
+               M75 175 L125 175
+               M65 190 L135 190"
+            fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <defs>
+            <clipPath id="bowlClip">
+              <path d="M40 35 L100 98 L160 35 Z"/>
+            </clipPath>
+
+            <linearGradient id="choco" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#6b3f2a"/>
+              <stop offset="1" stop-color="#2f1b13"/>
+            </linearGradient>
+
+            <linearGradient id="shine" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="rgba(255,255,255,0.65)"/>
+              <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Liquid + foam + highlight -->
+          <g clip-path="url(#bowlClip)">
+            <path class="liquid" d="M45 45 L100 96 L155 45 Z" fill="url(#choco)"/>
+            <path class="foam" d="M46 46 C70 54, 85 50, 100 60 C115 70, 135 58, 154 48 L154 45 L46 45 Z"/>
+            <path class="highlight" d="M58 44 L92 78" fill="none" stroke="url(#shine)" stroke-width="8" stroke-linecap="round" opacity="0.55"/>
+          </g>
+
+          <!-- Cocoa dust -->
+          <circle class="dust" cx="95" cy="58" r="2"/>
+          <circle class="dust" cx="110" cy="65" r="1.8"/>
+          <circle class="dust" cx="85" cy="70" r="1.6"/>
+        </svg>
+      </div>
+
       <h2>Santa's Favorite Espresso Martini</h2>
 
       <h3>Ingredients</h3>
@@ -312,7 +403,7 @@
         <li>0.75 oz Mr. Black Coffee Liqueur</li>
         <li>0.5 oz Baileys Irish Cream (or to taste)</li>
         <li>1 oz Fresh Espresso</li>
-        <li>Ice & Garnish: Shake with ice, strain, garnish with beans</li>
+        <li>Ice &amp; Garnish: Shake with ice, strain, garnish with beans</li>
       </ul>
 
       <h3>Instructions</h3>
@@ -320,16 +411,16 @@
         <li><strong>Chill Glass:</strong> Chill a martini or coupe glass</li>
         <li><strong>Combine:</strong> Add all ingredients to a cocktail shaker with ice</li>
         <li><strong>Shake Vigorously:</strong> Shake hard for about 15-20 seconds to create a rich foam</li>
-        <li><strong>Strain & Garnish:</strong> Strain into the chilled glass and top with three coffee beans</li>
+        <li><strong>Strain &amp; Garnish:</strong> Strain into the chilled glass and top with three coffee beans</li>
       </ol>
     </div>
   </div>
 
   <!-- No-Knead Bread Modal -->
-  <div class="modal-overlay" id="breadModal" onclick="closeBreadModal(event)">
+  <div class="modal-overlay" id="breadModal" onclick="closeBreadModal(event)" role="dialog" aria-modal="true" aria-label="Bread recipe">
     <div class="modal" onclick="event.stopPropagation()">
-      <span class="modal-close" onclick="closeBreadModal()">&times;</span>
-      <div class="drink-emoji">🍞🥖</div>
+      <span class="modal-close" onclick="closeBreadModal()" aria-label="Close">&times;</span>
+      <div class="drink-emoji" style="text-align:center;font-size:3rem;margin-bottom:1rem;">🍞🥖</div>
       <h2>Sullivan Street No-Knead Bread</h2>
       <p style="text-align: center; opacity: 0.8; font-size: 0.9rem; margin-bottom: 0.5rem;">Jim Lahey's Famous Recipe</p>
 
@@ -367,76 +458,61 @@
   </div>
 
   <script>
-    /**
-     * Music overhaul:
-     * - Use ONE AudioContext (no recreating per loop)
-     * - Schedule notes precisely with a lookahead scheduler (stable timing)
-     * - Use a "toy piano / sleigh bell" synth that sounds closer to classic Jingle Bells:
-     *   - light metallic partials + gentle detune + short bright attack + quick decay
-     * - Use the more standard rhythm (quarter / eighth feel) so it “sings” like the original
-     */
-
+    /***********************
+     * Audio: Jingle Bells
+     * - iOS/Safari-safe: keep one AudioContext + always resume inside click
+     * - Precise timing scheduler + bell/toy-piano timbre
+     ***********************/
     let audioCtx = null;
     let isPlaying = false;
     let schedulerTimer = null;
 
     const musicBtn = document.getElementById('musicToggle');
+    const audioHint = document.getElementById('audioHint');
 
     const notes = {
       C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
       C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99
     };
 
-    // Standard “chorus” melody feel (closer to what you hum)
-    // duration is in beats (at BPM below)
+    // Standard chorus feel
     const jingleBells = [
-      // Jingle bells, jingle bells, jingle all the way
       { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
       { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
       { n:'E4', b:1 }, { n:'G4', b:1 }, { n:'C4', b:1.5 }, { n:'D4', b:0.5 }, { n:'E4', b:4 },
 
-      // Oh what fun it is to ride in a one-horse open sleigh
       { n:'F4', b:1 }, { n:'F4', b:1 }, { n:'F4', b:1.5 }, { n:'F4', b:0.5 },
       { n:'F4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:0.5 }, { n:'E4', b:0.5 },
       { n:'E4', b:1 }, { n:'D4', b:1 }, { n:'D4', b:1 }, { n:'E4', b:1 }, { n:'D4', b:2 }, { n:'G4', b:2 },
 
-      // small rest then loop
       { n:null, b:2 }
     ];
 
-    // Timing
-    const BPM = 112;                  // a bit peppier = more "original" vibe
+    const BPM = 112;
     const secondsPerBeat = 60 / BPM;
-    const lookaheadMs = 25;           // scheduler tick
-    const scheduleAheadSeconds = 0.15; // how far ahead we schedule
+    const lookaheadMs = 25;
+    const scheduleAheadSeconds = 0.15;
 
     let sequenceIndex = 0;
     let nextNoteTime = 0;
 
-    // A brighter bell / toy piano hybrid using partials + a tiny bit of noise "click"
     function createBell(ctx, freq, t, durSec, velocity=0.55) {
-      const out = ctx.createGain();
-      out.gain.value = 1;
-
-      // Optional gentle brightness roll-off (prevents harshness)
       const lowpass = ctx.createBiquadFilter();
       lowpass.type = 'lowpass';
       lowpass.frequency.setValueAtTime(12000, t);
       lowpass.frequency.linearRampToValueAtTime(8000, t + durSec);
 
-      // Master envelope
       const env = ctx.createGain();
       env.gain.setValueAtTime(0.0001, t);
-      env.gain.exponentialRampToValueAtTime(velocity, t + 0.006); // fast attack
+      env.gain.exponentialRampToValueAtTime(velocity, t + 0.006);
       env.gain.exponentialRampToValueAtTime(0.25 * velocity, t + Math.min(durSec * 0.35, 0.18));
       env.gain.exponentialRampToValueAtTime(0.0001, t + durSec);
 
-      // Partials (metallic-ish but still musical)
       const partials = [
         { m: 1.00, g: 1.00, type:'sine' },
         { m: 2.00, g: 0.22, type:'sine' },
         { m: 3.00, g: 0.10, type:'triangle' },
-        { m: 4.20, g: 0.06, type:'sine' },    // inharmonic partial gives bell flavor
+        { m: 4.20, g: 0.06, type:'sine' },
         { m: 5.40, g: 0.04, type:'sine' }
       ];
 
@@ -448,7 +524,6 @@
         const g = ctx.createGain();
         o.type = p.type;
         o.frequency.setValueAtTime(freq * p.m, t);
-        // micro-detune makes it feel more "real"
         o.detune.setValueAtTime((Math.random() * 8) - 4, t);
 
         g.gain.setValueAtTime(p.g, t);
@@ -458,10 +533,12 @@
         o.stop(t + durSec);
       });
 
-      // Tiny transient "click" for mallet attack
+      // Tiny transient "click"
       const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.02), ctx.sampleRate);
       const data = noiseBuf.getChannelData(0);
-      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.002));
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.002));
+      }
 
       const noise = ctx.createBufferSource();
       noise.buffer = noiseBuf;
@@ -472,8 +549,7 @@
       noise.start(t);
       noise.stop(t + 0.03);
 
-      // Chain
-      sum.connect(env).connect(lowpass).connect(out).connect(ctx.destination);
+      sum.connect(env).connect(lowpass).connect(ctx.destination);
     }
 
     function scheduleNote(noteName, time, beatLength) {
@@ -481,22 +557,19 @@
       const freq = notes[noteName];
       if (!freq) return;
 
-      // Duration: bell wants a bit of ring but not overlap too much
       const durSec = Math.max(0.12, Math.min(0.55, beatLength * secondsPerBeat * 0.9));
-      createBell(audioCtx, freq, time, durSec, 0.55);
+      createBell(audioCtx, freq, time, durSec, 0.58);
     }
 
     function nextEvent() {
       const evt = jingleBells[sequenceIndex];
-      const beatLen = evt.b;
-      scheduleNote(evt.n, nextNoteTime, beatLen);
-      nextNoteTime += beatLen * secondsPerBeat;
+      scheduleNote(evt.n, nextNoteTime, evt.b);
+      nextNoteTime += evt.b * secondsPerBeat;
       sequenceIndex = (sequenceIndex + 1) % jingleBells.length;
     }
 
     function scheduler() {
       if (!isPlaying || !audioCtx) return;
-
       while (nextNoteTime < audioCtx.currentTime + scheduleAheadSeconds) {
         nextEvent();
       }
@@ -505,22 +578,25 @@
 
     async function startMusic() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') await audioCtx.resume();
+      if (audioCtx.state !== 'running') {
+        await audioCtx.resume(); // key for iOS/Safari
+      }
 
-      // Reset sequence timing on start
       sequenceIndex = 0;
       nextNoteTime = audioCtx.currentTime + 0.08;
+
+      if (schedulerTimer) clearTimeout(schedulerTimer);
       scheduler();
     }
 
     function stopMusic() {
       if (schedulerTimer) clearTimeout(schedulerTimer);
       schedulerTimer = null;
-      // Keep AudioContext alive (instant restart + avoids pop/click from close/open)
-      // If you prefer fully stopping: audioCtx.close(); audioCtx = null;
+      // Keep AudioContext alive for instant restart; avoid iOS issues with closing.
     }
 
-    function toggleMusic() {
+    // IMPORTANT: async so we can await startMusic()
+    async function toggleMusic() {
       if (isPlaying) {
         isPlaying = false;
         stopMusic();
@@ -530,12 +606,38 @@
         isPlaying = true;
         musicBtn.textContent = '🔊';
         musicBtn.classList.add('playing');
-        startMusic();
+        try {
+          await startMusic();
+          // Hide hint if it was showing
+          audioHint.classList.remove('show');
+        } catch (e) {
+          isPlaying = false;
+          stopMusic();
+          musicBtn.textContent = '🔇';
+          musicBtn.classList.remove('playing');
+          // Show hint briefly
+          audioHint.classList.add('show');
+          setTimeout(() => audioHint.classList.remove('show'), 4500);
+          console.warn('Audio start blocked:', e);
+        }
       }
     }
 
-    // Stars
-    for (let i = 0; i < 80; i++) {
+    // One-time "unlock" attempt on first pointer gesture (helps iOS)
+    document.addEventListener('pointerdown', async () => {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state !== 'running') await audioCtx.resume();
+      } catch (e) {}
+    }, { once: true });
+
+    /***********************
+     * Stars + Snow
+     ***********************/
+    const starCount = (window.innerWidth < 500) ? 45 : 80;
+    const flakeCount = (window.innerWidth < 500) ? 28 : 50;
+
+    for (let i = 0; i < starCount; i++) {
       const star = document.createElement('div');
       star.className = 'star';
       const size = Math.random() * 3 + 1;
@@ -548,8 +650,7 @@
       document.body.appendChild(star);
     }
 
-    // Snowflakes
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < flakeCount; i++) {
       const flake = document.createElement('div');
       flake.className = 'snowflake';
       flake.textContent = ['❄', '❅', '❆'][Math.floor(Math.random() * 3)];
@@ -560,27 +661,29 @@
       document.body.appendChild(flake);
     }
 
-    // Espresso Martini Modal Functions
+    /***********************
+     * Modals
+     ***********************/
     function openEspressoRecipe() {
       document.getElementById('espressoModal').classList.add('active');
     }
+
     function closeEspressoModal(event) {
       if (!event || event.target === document.getElementById('espressoModal')) {
         document.getElementById('espressoModal').classList.remove('active');
       }
     }
 
-    // Bread Recipe Modal Functions
     function openBreadRecipe() {
       document.getElementById('breadModal').classList.add('active');
     }
+
     function closeBreadModal(event) {
       if (!event || event.target === document.getElementById('breadModal')) {
         document.getElementById('breadModal').classList.remove('active');
       }
     }
 
-    // Close modals with Escape key
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeEspressoModal();
@@ -588,7 +691,9 @@
       }
     });
 
-    // Live BTC Price - tries multiple APIs with fallback
+    /***********************
+     * Live BTC Price (multi-API fallback)
+     ***********************/
     async function fetchPrice() {
       const apis = [
         {
