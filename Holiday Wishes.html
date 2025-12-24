@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Happy Holidays!</title>
+  <style>
+    @import url('https://fonts.cdnfonts.com/css/futura-md-bt');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(to bottom, #0d1b2a, #1b263b, #415a77);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Georgia, serif;
+      overflow: hidden;
+    }
+    .message {
+      text-align: center;
+      color: #fff;
+      z-index: 10;
+      animation: fadeIn 2s ease-in;
+      max-width: 700px;
+      padding: 0 2rem;
+    }
+    .message h1 {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+    .message p {
+      font-size: 1.3rem;
+      opacity: 0.95;
+      line-height: 1.6;
+    }
+    .message .healthy-new-year { margin-top: 0.8rem; }
+    .message .subtext {
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      opacity: 0.75;
+      font-style: italic;
+    }
+    .message .moon-line { display: block; margin-top: 0.3rem; }
+
+    /* Music Toggle Button */
+    .music-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+    .music-toggle:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.1);
+    }
+    .music-toggle.playing {
+      background: rgba(212, 175, 55, 0.3);
+      border-color: rgba(212, 175, 55, 0.6);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+    }
+
+    .bitcoin-moon {
+      position: fixed;
+      top: 8%;
+      right: 12%;
+      width: 130px;
+      height: 130px;
+      background: radial-gradient(circle at 30% 30%, #f7931a, #c27214);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #fff;
+      box-shadow:
+        0 0 60px rgba(247, 147, 26, 0.6),
+        0 0 120px rgba(247, 147, 26, 0.3);
+      animation: glow 3s ease-in-out infinite alternate, rise 3s ease-out;
+      z-index: 5;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+    .bitcoin-moon:hover { transform: scale(1.05); }
+    .bitcoin-moon .btc-symbol {
+      font-size: 2.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .bitcoin-moon .btc-price {
+      font-size: 0.85rem;
+      margin-top: 0.2rem;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      opacity: 0.95;
+    }
+
+    .santa-container {
+      position: fixed;
+      top: 50%;
+      animation: fly 12s linear infinite;
+      z-index: 20;
+      white-space: nowrap;
+      transform: rotate(-15deg);
+    }
+    .santa {
+      font-size: 2.2rem;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+      display: inline-block;
+    }
+    .reindeer { display: inline-block; transform: scaleX(-1); }
+
+    .star {
+      position: fixed;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle ease-in-out infinite;
+    }
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: #fff;
+      font-size: 1.5rem;
+      animation: fall linear infinite;
+      opacity: 0.8;
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    /* Bottom section with Diageo logo and signoff */
+    .bottom-section {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 15;
+    }
+    .diageo-logo {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      font-family: 'Futura Md BT', 'Futura', 'Century Gothic', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: #C80651;
+      letter-spacing: 6px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .diageo-logo:hover { transform: scale(1.05); }
+    .signoff {
+      margin-top: 15px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-style: italic;
+      opacity: 0.9;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .signoff-initials { cursor: pointer; transition: color 0.2s ease; }
+    .signoff-initials:hover { color: #d4af37; }
+
+    /* Recipe Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      color: #fff;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .modal-close:hover { opacity: 1; }
+    .modal h2 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      color: #d4af37;
+      text-align: center;
+    }
+    .modal .drink-emoji {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .modal h3 {
+      font-size: 1.1rem;
+      margin-top: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: #d4af37;
+    }
+    .modal ul { list-style: none; padding-left: 0; }
+    .modal ul li {
+      padding: 0.3rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+    .modal ul li:before {
+      content: "•";
+      color: #d4af37;
+      position: absolute;
+      left: 0;
+    }
+    .modal ol { padding-left: 1.5rem; }
+    .modal ol li {
+      padding: 0.4rem 0;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+    .modal ol li strong { color: #d4af37; }
+    .modal .tip {
+      margin-top: 1.2rem;
+      padding: 0.8rem;
+      background: rgba(212, 175, 55, 0.1);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-style: italic;
+      opacity: 0.85;
+    }
+
+    @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes glow {
+      from { box-shadow: 0 0 60px rgba(247, 147, 26, 0.6), 0 0 120px rgba(247, 147, 26, 0.3); }
+      to { box-shadow: 0 0 80px rgba(247, 147, 26, 0.8), 0 0 160px rgba(247, 147, 26, 0.5); }
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+    @keyframes fly {
+      from { left: -350px; top: 50%; }
+      to { left: 110vw; top: -15%; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Music Toggle -->
+  <button class="music-toggle" id="musicToggle" onclick="toggleMusic()" title="🎵 Click for Jingle Bells!">🔇</button>
+
+  <a href="https://coinmarketcap.com/charts/fear-and-greed-index/" target="_blank" class="bitcoin-moon">
+    <span class="btc-symbol">₿</span>
+    <span class="btc-price" id="price">$93,500</span>
+  </a>
+
+  <div class="santa-container">
+    <span class="santa">🎅🛷<span class="reindeer">🦌🦌🦌🦌🦌🦌🦌🦌</span></span>
+  </div>
+
+  <div class="message">
+    <h1>✨ Happy Holidays! ✨</h1>
+    <p>Wishing you and your families a Merry Christmas, Happy Holidays, and warm wishes to everyone, whatever you celebrate.</p>
+    <p class="healthy-new-year">Here's to a healthy and Happy New Year!</p>
+    <p class="subtext">Looking forward to what we'll accomplish together in the year ahead —<span class="moon-line">to the moon in 2026! 🚀</span></p>
+  </div>
+
+  <div class="bottom-section">
+    <div class="diageo-logo" onclick="openEspressoRecipe()">DIAGEO</div>
+    <div class="signoff">Cheers, <span class="signoff-initials" onclick="openBreadRecipe()">JZ</span></div>
+  </div>
+
+  <!-- Espresso Martini Modal -->
+  <div class="modal-overlay" id="espressoModal" onclick="closeEspressoModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeEspressoModal()">&times;</span>
+      <div class="drink-emoji">🎅🍸☕</div>
+      <h2>Santa's Favorite Espresso Martini</h2>
+
+      <h3>Ingredients</h3>
+      <ul>
+        <li>1 oz Ketel One Vodka</li>
+        <li>0.75 oz Mr. Black Coffee Liqueur</li>
+        <li>0.5 oz Baileys Irish Cream (or to taste)</li>
+        <li>1 oz Fresh Espresso</li>
+        <li>Ice & Garnish: Shake with ice, strain, garnish with beans</li>
+      </ul>
+
+      <h3>Instructions</h3>
+      <ol>
+        <li><strong>Chill Glass:</strong> Chill a martini or coupe glass</li>
+        <li><strong>Combine:</strong> Add all ingredients to a cocktail shaker with ice</li>
+        <li><strong>Shake Vigorously:</strong> Shake hard for about 15-20 seconds to create a rich foam</li>
+        <li><strong>Strain & Garnish:</strong> Strain into the chilled glass and top with three coffee beans</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- No-Knead Bread Modal -->
+  <div class="modal-overlay" id="breadModal" onclick="closeBreadModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeBreadModal()">&times;</span>
+      <div class="drink-emoji">🍞🥖</div>
+      <h2>Sullivan Street No-Knead Bread</h2>
+      <p style="text-align: center; opacity: 0.8; font-size: 0.9rem; margin-bottom: 0.5rem;">Jim Lahey's Famous Recipe</p>
+
+      <h3>Ingredients</h3>
+      <ul>
+        <li>3 cups bread flour (or all-purpose)</li>
+        <li>1½ teaspoons salt</li>
+        <li>¼ teaspoon instant yeast</li>
+        <li>1⅓ cups water (room temperature)</li>
+      </ul>
+
+      <h3>Equipment</h3>
+      <ul>
+        <li>Large bowl</li>
+        <li>Plastic wrap</li>
+        <li>Dutch oven with lid (cast iron, ceramic, or Pyrex)</li>
+        <li>Cotton kitchen towel</li>
+      </ul>
+
+      <h3>Instructions</h3>
+      <ol>
+        <li><strong>Mix (5 min):</strong> Combine flour, salt, and yeast in a large bowl. Add water and stir until a shaggy, sticky dough forms. Cover with plastic wrap.</li>
+        <li><strong>First Rise (12-18 hours):</strong> Let rest at room temperature. Dough is ready when the surface is dotted with bubbles and it has more than doubled.</li>
+        <li><strong>Shape (2 min):</strong> Flour a work surface generously. Turn out dough and fold it over on itself a few times. Shape into a ball. Cover loosely and let rest 15 minutes.</li>
+        <li><strong>Second Rise (1-2 hours):</strong> Place dough seam-side down on a well-floured cotton towel. Dust top with flour, cover with another towel. Let rise until doubled and doesn't spring back when poked.</li>
+        <li><strong>Preheat:</strong> 30 minutes before baking, place Dutch oven (with lid) in oven. Heat to 450°F (230°C).</li>
+        <li><strong>Bake:</strong> Carefully turn dough into hot pot (seam-side up is fine). Cover and bake 30 minutes. Remove lid and bake another 15-20 minutes until deep golden brown.</li>
+        <li><strong>Cool:</strong> Turn out onto a rack. Let cool at least 30 minutes before slicing.</li>
+      </ol>
+
+      <div class="tip">
+        💡 <strong>Pro tip:</strong> Start the dough the night before Christmas Eve, and you'll have fresh bread ready for Christmas dinner!
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Music overhaul:
+     * - Use ONE AudioContext (no recreating per loop)
+     * - Schedule notes precisely with a lookahead scheduler (stable timing)
+     * - Use a "toy piano / sleigh bell" synth that sounds closer to classic Jingle Bells:
+     *   - light metallic partials + gentle detune + short bright attack + quick decay
+     * - Use the more standard rhythm (quarter / eighth feel) so it “sings” like the original
+     */
+
+    let audioCtx = null;
+    let isPlaying = false;
+    let schedulerTimer = null;
+
+    const musicBtn = document.getElementById('musicToggle');
+
+    const notes = {
+      C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
+      C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99
+    };
+
+    // Standard “chorus” melody feel (closer to what you hum)
+    // duration is in beats (at BPM below)
+    const jingleBells = [
+      // Jingle bells, jingle bells, jingle all the way
+      { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
+      { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
+      { n:'E4', b:1 }, { n:'G4', b:1 }, { n:'C4', b:1.5 }, { n:'D4', b:0.5 }, { n:'E4', b:4 },
+
+      // Oh what fun it is to ride in a one-horse open sleigh
+      { n:'F4', b:1 }, { n:'F4', b:1 }, { n:'F4', b:1.5 }, { n:'F4', b:0.5 },
+      { n:'F4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:0.5 }, { n:'E4', b:0.5 },
+      { n:'E4', b:1 }, { n:'D4', b:1 }, { n:'D4', b:1 }, { n:'E4', b:1 }, { n:'D4', b:2 }, { n:'G4', b:2 },
+
+      // small rest then loop
+      { n:null, b:2 }
+    ];
+
+    // Timing
+    const BPM = 112;                  // a bit peppier = more "original" vibe
+    const secondsPerBeat = 60 / BPM;
+    const lookaheadMs = 25;           // scheduler tick
+    const scheduleAheadSeconds = 0.15; // how far ahead we schedule
+
+    let sequenceIndex = 0;
+    let nextNoteTime = 0;
+
+    // A brighter bell / toy piano hybrid using partials + a tiny bit of noise "click"
+    function createBell(ctx, freq, t, durSec, velocity=0.55) {
+      const out = ctx.createGain();
+      out.gain.value = 1;
+
+      // Optional gentle brightness roll-off (prevents harshness)
+      const lowpass = ctx.createBiquadFilter();
+      lowpass.type = 'lowpass';
+      lowpass.frequency.setValueAtTime(12000, t);
+      lowpass.frequency.linearRampToValueAtTime(8000, t + durSec);
+
+      // Master envelope
+      const env = ctx.createGain();
+      env.gain.setValueAtTime(0.0001, t);
+      env.gain.exponentialRampToValueAtTime(velocity, t + 0.006); // fast attack
+      env.gain.exponentialRampToValueAtTime(0.25 * velocity, t + Math.min(durSec * 0.35, 0.18));
+      env.gain.exponentialRampToValueAtTime(0.0001, t + durSec);
+
+      // Partials (metallic-ish but still musical)
+      const partials = [
+        { m: 1.00, g: 1.00, type:'sine' },
+        { m: 2.00, g: 0.22, type:'sine' },
+        { m: 3.00, g: 0.10, type:'triangle' },
+        { m: 4.20, g: 0.06, type:'sine' },    // inharmonic partial gives bell flavor
+        { m: 5.40, g: 0.04, type:'sine' }
+      ];
+
+      const sum = ctx.createGain();
+      sum.gain.value = 0.7;
+
+      partials.forEach(p => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = p.type;
+        o.frequency.setValueAtTime(freq * p.m, t);
+        // micro-detune makes it feel more "real"
+        o.detune.setValueAtTime((Math.random() * 8) - 4, t);
+
+        g.gain.setValueAtTime(p.g, t);
+        o.connect(g).connect(sum);
+
+        o.start(t);
+        o.stop(t + durSec);
+      });
+
+      // Tiny transient "click" for mallet attack
+      const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.02), ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.002));
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.12 * velocity, t);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
+      noise.connect(noiseGain).connect(sum);
+      noise.start(t);
+      noise.stop(t + 0.03);
+
+      // Chain
+      sum.connect(env).connect(lowpass).connect(out).connect(ctx.destination);
+    }
+
+    function scheduleNote(noteName, time, beatLength) {
+      if (!noteName) return;
+      const freq = notes[noteName];
+      if (!freq) return;
+
+      // Duration: bell wants a bit of ring but not overlap too much
+      const durSec = Math.max(0.12, Math.min(0.55, beatLength * secondsPerBeat * 0.9));
+      createBell(audioCtx, freq, time, durSec, 0.55);
+    }
+
+    function nextEvent() {
+      const evt = jingleBells[sequenceIndex];
+      const beatLen = evt.b;
+      scheduleNote(evt.n, nextNoteTime, beatLen);
+      nextNoteTime += beatLen * secondsPerBeat;
+      sequenceIndex = (sequenceIndex + 1) % jingleBells.length;
+    }
+
+    function scheduler() {
+      if (!isPlaying || !audioCtx) return;
+
+      while (nextNoteTime < audioCtx.currentTime + scheduleAheadSeconds) {
+        nextEvent();
+      }
+      schedulerTimer = setTimeout(scheduler, lookaheadMs);
+    }
+
+    async function startMusic() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+      // Reset sequence timing on start
+      sequenceIndex = 0;
+      nextNoteTime = audioCtx.currentTime + 0.08;
+      scheduler();
+    }
+
+    function stopMusic() {
+      if (schedulerTimer) clearTimeout(schedulerTimer);
+      schedulerTimer = null;
+      // Keep AudioContext alive (instant restart + avoids pop/click from close/open)
+      // If you prefer fully stopping: audioCtx.close(); audioCtx = null;
+    }
+
+    function toggleMusic() {
+      if (isPlaying) {
+        isPlaying = false;
+        stopMusic();
+        musicBtn.textContent = '🔇';
+        musicBtn.classList.remove('playing');
+      } else {
+        isPlaying = true;
+        musicBtn.textContent = '🔊';
+        musicBtn.classList.add('playing');
+        startMusic();
+      }
+    }
+
+    // Stars
+    for (let i = 0; i < 80; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      const size = Math.random() * 3 + 1;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + 'vw';
+      star.style.top = Math.random() * 50 + 'vh';
+      star.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      star.style.animationDelay = Math.random() * 3 + 's';
+      document.body.appendChild(star);
+    }
+
+    // Snowflakes
+    for (let i = 0; i < 50; i++) {
+      const flake = document.createElement('div');
+      flake.className = 'snowflake';
+      flake.textContent = ['❄', '❅', '❆'][Math.floor(Math.random() * 3)];
+      flake.style.left = Math.random() * 100 + 'vw';
+      flake.style.animationDuration = (3 + Math.random() * 4) + 's';
+      flake.style.animationDelay = Math.random() * 5 + 's';
+      flake.style.fontSize = (0.8 + Math.random()) + 'rem';
+      document.body.appendChild(flake);
+    }
+
+    // Espresso Martini Modal Functions
+    function openEspressoRecipe() {
+      document.getElementById('espressoModal').classList.add('active');
+    }
+    function closeEspressoModal(event) {
+      if (!event || event.target === document.getElementById('espressoModal')) {
+        document.getElementById('espressoModal').classList.remove('active');
+      }
+    }
+
+    // Bread Recipe Modal Functions
+    function openBreadRecipe() {
+      document.getElementById('breadModal').classList.add('active');
+    }
+    function closeBreadModal(event) {
+      if (!event || event.target === document.getElementById('breadModal')) {
+        document.getElementById('breadModal').classList.remove('active');
+      }
+    }
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeEspressoModal();
+        closeBreadModal();
+      }
+    });
+
+    // Live BTC Price - tries multiple APIs with fallback
+    async function fetchPrice() {
+      const apis = [
+        {
+          url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+          parse: (data) => data.bitcoin.usd
+        },
+        {
+          url: 'https://api.coinbase.com/v2/prices/BTC-USD/spot',
+          parse: (data) => parseFloat(data.data.amount)
+        },
+        {
+          url: 'https://api.coindesk.com/v1/bpi/currentprice.json',
+          parse: (data) => parseFloat(data.bpi.USD.rate.replace(',', ''))
+        }
+      ];
+
+      for (const api of apis) {
+        try {
+          const res = await fetch(api.url, { cache: 'no-store' });
+          const data = await res.json();
+          const price = api.parse(data);
+          if (price) {
+            document.getElementById('price').textContent =
+              '$' + price.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            return;
+          }
+        } catch (e) { /* try next */ }
+      }
+    }
+    fetchPrice();
+    setInterval(fetchPrice, 30000);
+  </script>
+</body>
+</html>
