@@ -1,4 +1,3 @@
-<!-- Brought to you by JZ -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -434,7 +433,6 @@
 </head>
 
 <body>
-  <!-- One-time audio unlock overlay -->
   <div class="audio-unlock" id="audioUnlock">
     <div class="audio-unlock-card">
       <h2>Turn sound on 🎶</h2>
@@ -468,7 +466,6 @@
     <div class="signoff">Cheers, <span class="signoff-initials" onclick="openBreadRecipe()">JZ</span></div>
   </div>
 
-  <!-- Espresso Martini Modal -->
   <div class="modal-overlay" id="espressoModal" onclick="closeEspressoModal(event)" role="dialog" aria-modal="true" aria-label="Espresso martini recipe">
     <div class="modal" onclick="event.stopPropagation()">
       <span class="modal-close" onclick="closeEspressoModal()" aria-label="Close">&times;</span>
@@ -531,7 +528,6 @@
     </div>
   </div>
 
-  <!-- No-Knead Bread Modal -->
   <div class="modal-overlay" id="breadModal" onclick="closeBreadModal(event)" role="dialog" aria-modal="true" aria-label="Bread recipe">
     <div class="modal" onclick="event.stopPropagation()">
       <span class="modal-close" onclick="closeBreadModal()" aria-label="Close">&times;</span>
@@ -574,11 +570,12 @@
 
   <script>
     /***********************
-     * Audio: Cross-device reliable Jingle Bells
+     * Audio: Fixed & Louder Jingle Bells
      ***********************/
     let audioCtx = null;
     let isPlaying = false;
     let schedulerTimer = null;
+    let noiseBuffer = null;
 
     let masterGain = null;
     let compressor = null;
@@ -588,25 +585,37 @@
     const audioUnlock = document.getElementById('audioUnlock');
     const audioUnlockBtn = document.getElementById('audioUnlockBtn');
 
+    // Standard frequencies
     const notes = {
       C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
       C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99
     };
 
+    // Full chorus sequence
     const jingleBells = [
+      // Jingle bells, jingle bells, jingle all the way
       { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
       { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
       { n:'E4', b:1 }, { n:'G4', b:1 }, { n:'C4', b:1.5 }, { n:'D4', b:0.5 }, { n:'E4', b:4 },
+      // Oh what fun it is to ride in a one horse open sleigh
       { n:'F4', b:1 }, { n:'F4', b:1 }, { n:'F4', b:1.5 }, { n:'F4', b:0.5 },
       { n:'F4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:0.5 }, { n:'E4', b:0.5 },
       { n:'E4', b:1 }, { n:'D4', b:1 }, { n:'D4', b:1 }, { n:'E4', b:1 }, { n:'D4', b:2 }, { n:'G4', b:2 },
-      { n:null, b:2 }
+      // Jingle bells, jingle bells, jingle all the way
+      { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
+      { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:2 },
+      { n:'E4', b:1 }, { n:'G4', b:1 }, { n:'C4', b:1.5 }, { n:'D4', b:0.5 }, { n:'E4', b:4 },
+      // Oh what fun it is to ride in a one horse open sleigh (ending on C)
+      { n:'F4', b:1 }, { n:'F4', b:1 }, { n:'F4', b:1.5 }, { n:'F4', b:0.5 },
+      { n:'F4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:1 }, { n:'E4', b:0.5 }, { n:'E4', b:0.5 },
+      { n:'G4', b:1 }, { n:'G4', b:1 }, { n:'F4', b:1 }, { n:'D4', b:1 }, { n:'C4', b:4 },
+      { n:null, b:2 } // Pause before loop
     ];
 
-    const BPM = 112;
+    const BPM = 120;
     const secondsPerBeat = 60 / BPM;
     const lookaheadMs = 25;
-    const scheduleAheadSeconds = 0.18;
+    const scheduleAheadSeconds = 0.1;
 
     let sequenceIndex = 0;
     let nextNoteTime = 0;
@@ -614,86 +623,72 @@
     function ensureAudioGraph() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+      // Create noise buffer once to save CPU
+      if (!noiseBuffer) {
+        const bufferSize = audioCtx.sampleRate * 0.1; // 0.1 sec buffer
+        noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+      }
+
       if (!compressor) {
         compressor = audioCtx.createDynamicsCompressor();
-        compressor.threshold.setValueAtTime(-24, audioCtx.currentTime);
-        compressor.knee.setValueAtTime(30, audioCtx.currentTime);
-        compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
-        compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
-        compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+        compressor.threshold.setValueAtTime(-20, audioCtx.currentTime);
+        compressor.ratio.setValueAtTime(8, audioCtx.currentTime);
+        compressor.connect(audioCtx.destination);
       }
 
       if (!masterGain) {
         masterGain = audioCtx.createGain();
-        masterGain.gain.setValueAtTime(0.95, audioCtx.currentTime);
-      }
-
-      if (!masterGain._connected) {
+        masterGain.gain.setValueAtTime(0.6, audioCtx.currentTime); // Master volume
         masterGain.connect(compressor);
-        compressor.connect(audioCtx.destination);
-        masterGain._connected = true;
       }
     }
 
     async function resumeAudio() {
       ensureAudioGraph();
-      if (audioCtx.state !== 'running') {
+      if (audioCtx.state === 'suspended') {
         await audioCtx.resume();
       }
     }
 
-    function createBell(freq, t, durSec, velocity=0.7) {
-      const lowpass = audioCtx.createBiquadFilter();
-      lowpass.type = 'lowpass';
-      lowpass.frequency.setValueAtTime(12000, t);
-      lowpass.frequency.linearRampToValueAtTime(8500, t + durSec);
+    // A louder, simpler bell synthesis
+    function createBell(freq, t, durSec) {
+      if (!audioCtx || !masterGain) return;
 
-      const env = audioCtx.createGain();
-      env.gain.setValueAtTime(0.0001, t);
-      env.gain.exponentialRampToValueAtTime(velocity, t + 0.006);
-      env.gain.exponentialRampToValueAtTime(0.25 * velocity, t + Math.min(durSec * 0.35, 0.20));
-      env.gain.exponentialRampToValueAtTime(0.0001, t + durSec);
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
-      const partials = [
-        { m: 1.00, g: 1.00, type:'sine' },
-        { m: 2.00, g: 0.28, type:'sine' },
-        { m: 3.00, g: 0.14, type:'triangle' },
-        { m: 4.20, g: 0.08, type:'sine' },
-        { m: 5.40, g: 0.05, type:'sine' }
-      ];
+      // Triangle wave cuts through better on mobile speakers than sine
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
 
-      const sum = audioCtx.createGain();
-      sum.gain.value = 0.85;
+      // Simple decay envelope
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.8, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + durSec);
 
-      partials.forEach(p => {
-        const o = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        o.type = p.type;
-        o.frequency.setValueAtTime(freq * p.m, t);
-        o.detune.setValueAtTime((Math.random() * 10) - 5, t);
+      osc.connect(gain);
+      gain.connect(masterGain);
 
-        g.gain.setValueAtTime(p.g, t);
-        o.connect(g).connect(sum);
+      osc.start(t);
+      osc.stop(t + durSec + 0.1);
 
-        o.start(t);
-        o.stop(t + durSec);
-      });
+      // Add a tiny bit of high-pitch "sparkle" (sine overtone)
+      const osc2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(freq * 2, t);
+      gain2.gain.setValueAtTime(0, t);
+      gain2.gain.linearRampToValueAtTime(0.3, t + 0.02);
+      gain2.gain.exponentialRampToValueAtTime(0.01, t + (durSec * 0.8));
 
-      const noiseBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.02), audioCtx.sampleRate);
-      const data = noiseBuf.getChannelData(0);
-      for (let i = 0; i < data.length; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.002));
-      }
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = noiseBuf;
-      const noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(0.16 * velocity, t);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
-      noise.connect(noiseGain).connect(sum);
-      noise.start(t);
-      noise.stop(t + 0.03);
-
-      sum.connect(env).connect(lowpass).connect(masterGain);
+      osc2.connect(gain2);
+      gain2.connect(masterGain);
+      osc2.start(t);
+      osc2.stop(t + durSec + 0.1);
     }
 
     function scheduleNote(noteName, time, beatLength) {
@@ -701,8 +696,9 @@
       const freq = notes[noteName];
       if (!freq) return;
 
-      const durSec = Math.max(0.14, Math.min(0.60, beatLength * secondsPerBeat * 0.9));
-      createBell(freq, time, durSec, 0.75);
+      // Note duration
+      const durSec = beatLength * secondsPerBeat * 0.85;
+      createBell(freq, time, durSec);
     }
 
     function nextEvent() {
@@ -714,6 +710,7 @@
 
     function scheduler() {
       if (!isPlaying || !audioCtx) return;
+      // Schedule notes that fall within the lookahead window
       while (nextNoteTime < audioCtx.currentTime + scheduleAheadSeconds) {
         nextEvent();
       }
@@ -723,8 +720,7 @@
     async function startMusic() {
       await resumeAudio();
       sequenceIndex = 0;
-      nextNoteTime = audioCtx.currentTime + 0.10;
-
+      nextNoteTime = audioCtx.currentTime + 0.1; // Start slightly in future
       if (schedulerTimer) clearTimeout(schedulerTimer);
       scheduler();
     }
@@ -734,12 +730,21 @@
       schedulerTimer = null;
     }
 
-    // Unlock gating
+    // Unlock gating variables
     let audioUnlockedOnce = false;
 
     async function unlockAudioFromGesture() {
       try {
-        await resumeAudio();
+        ensureAudioGraph();
+        await audioCtx.resume();
+        
+        // Play a silent buffer to force the audio engine to wake up (iOS hack)
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+
         audioUnlockedOnce = true;
         audioUnlock.classList.remove('show');
         audioHint.classList.remove('show');
@@ -752,6 +757,7 @@
       }
     }
 
+    // Button in the overlay
     audioUnlockBtn.addEventListener('click', async () => {
       const ok = await unlockAudioFromGesture();
       if (ok) {
@@ -762,11 +768,11 @@
       }
     });
 
+    // Main Toggle Button
     async function toggleMusic() {
       if (!audioUnlockedOnce) {
+        // If never unlocked, force the overlay
         audioUnlock.classList.add('show');
-        audioHint.classList.add('show');
-        setTimeout(() => audioHint.classList.remove('show'), 5000);
         return;
       }
 
@@ -782,24 +788,26 @@
         try {
           await startMusic();
         } catch (e) {
-          isPlaying = false;
-          stopMusic();
-          musicBtn.textContent = '🔇';
-          musicBtn.classList.remove('playing');
-          audioHint.classList.add('show');
-          setTimeout(() => audioHint.classList.remove('show'), 5500);
-          console.warn('Audio start blocked:', e);
+          console.log("Error starting music", e);
         }
       }
     }
 
-    // Also attempt unlock on first real tap/click anywhere (helps PC)
+    // Attempt silent unlock on first interaction (improves desktop experience)
     const tryUnlockOnce = async () => {
       if (audioUnlockedOnce) return;
-      await unlockAudioFromGesture();
+      // Just init context, don't start music yet
+      ensureAudioGraph();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+          audioUnlockedOnce = true;
+          // Hide overlay if it was auto-shown
+          audioUnlock.classList.remove('show'); 
+        }).catch(() => {});
+      }
     };
     document.addEventListener('click', tryUnlockOnce, { once: true });
-    document.addEventListener('touchend', tryUnlockOnce, { once: true });
+    document.addEventListener('touchstart', tryUnlockOnce, { once: true });
 
     // Show overlay immediately on mobile devices (best iOS experience)
     const isLikelyMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -842,18 +850,21 @@
      ***********************/
     function openEspressoRecipe() { document.getElementById('espressoModal').classList.add('active'); }
     function closeEspressoModal(event) {
-      if (!event || event.target === document.getElementById('espressoModal')) {
+      if (!event || event.target === document.getElementById('espressoModal') || event.target.classList.contains('modal-close')) {
         document.getElementById('espressoModal').classList.remove('active');
       }
     }
     function openBreadRecipe() { document.getElementById('breadModal').classList.add('active'); }
     function closeBreadModal(event) {
-      if (!event || event.target === document.getElementById('breadModal')) {
+      if (!event || event.target === document.getElementById('breadModal') || event.target.classList.contains('modal-close')) {
         document.getElementById('breadModal').classList.remove('active');
       }
     }
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') { closeEspressoModal(); closeBreadModal(); }
+      if (e.key === 'Escape') { 
+        document.getElementById('espressoModal').classList.remove('active');
+        document.getElementById('breadModal').classList.remove('active');
+      }
     });
 
     /***********************
